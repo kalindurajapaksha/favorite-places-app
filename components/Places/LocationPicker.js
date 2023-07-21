@@ -7,10 +7,10 @@ import {
   useForegroundPermissions,
 } from "expo-location";
 import { useEffect, useMemo, useState } from "react";
-import { getMapPreview } from "../../util/location";
+import { getAddress, getMapPreview } from "../../util/location";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-const LocationPicker = () => {
+const LocationPicker = ({ onPickLocation }) => {
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -31,6 +31,15 @@ const LocationPicker = () => {
       setLocation(mapPickedLocation);
     }
   }, [mapPickedLocation]);
+
+  useEffect(() => {
+    if (location) {
+      (async () => {
+        const address = await getAddress(location);
+        onPickLocation({ ...location, address });
+      })();
+    }
+  }, [location, onPickLocation]);
 
   const verifyPermission = async () => {
     if (status !== PermissionStatus.GRANTED) {
